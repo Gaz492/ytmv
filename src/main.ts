@@ -6,12 +6,14 @@ import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.dark.css'
 import './assets/main.css'
 
-// const appVersion = import.meta.env.DEV
-//   ? 'Developer Build'
-//   : import.meta.env.DRONE_COMMIT_SHA.substring(0, 10)
+const appVersion = import.meta.env.DEV
+  ? 'Developer Build'
+  : import.meta.env.CF_PAGES_COMMIT_SHA
+  ? import.meta.env.CF_PAGES_COMMIT_SHA.substring(0, 10)
+  : 'Developer Build'
 
 console.log(
-  `%c YTMV %c Version 2.0.0`,
+  `%c YTMV %c Version 2.0.0-${appVersion}`,
   'font-weight: bold; color: #E45B00; background: #2483B0; padding: 5px;',
   'color: black; background: #0699DC; padding: 5px;'
 )
