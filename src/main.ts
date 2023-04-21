@@ -10,7 +10,7 @@ const appVersion = import.meta.env.DEV
   ? 'Developer Build'
   : import.meta.env.CF_PAGES_COMMIT_SHA
   ? import.meta.env.CF_PAGES_COMMIT_SHA.substring(0, 10)
-  : 'Developer Build'
+  : 'SHA not available'
 
 console.log(
   `%c YTMV %c Version 2.0.0-${appVersion}`,
