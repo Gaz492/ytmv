@@ -8,8 +8,8 @@ import './assets/main.css'
 
 const appVersion = import.meta.env.DEV
   ? 'Developer Build'
-  : import.meta.env.CF_PAGES_COMMIT_SHA
-  ? import.meta.env.CF_PAGES_COMMIT_SHA.substring(0, 10)
+  : VITE_APP_COMMIT_SHA
+  ? VITE_APP_COMMIT_SHA.substring(0, 10)
   : 'SHA not available'
 
 console.log(
