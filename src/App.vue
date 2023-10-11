@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import {RouterLink, RouterView} from 'vue-router'
+import { ConfigProvider, theme } from 'ant-design-vue';
 </script>
 
 <template>
-  <!--  <a-layout>-->
-  <!--    <a-layout-content>-->
-  <RouterView />
-  <!--    </a-layout-content>-->
-  <!--  </a-layout>-->
+  <ConfigProvider :theme="{
+    algorithm: [theme.darkAlgorithm],
+  }">
+    <RouterView/>
+  </ConfigProvider>
 </template>
 
 <style scoped></style>

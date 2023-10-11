@@ -5,7 +5,8 @@
         <a-menu-item key="1" @click="showShareModal">
           <share-alt-outlined /> Share Views
         </a-menu-item>
-        <a-menu-item key="2">
+        <a-menu-divider />
+        <a-menu-item key="2" danger>
           <a-popconfirm
             placement="right"
             title="Are you sure you want to clear views?"
@@ -67,16 +68,28 @@
       </a-dropdown>
     </a-form-item>
     <a-form-item label="Stream 1" name="stream1">
-      <a-input v-model:value="streams.stream1" @change="debounce" />
+      <a-input-group compact>
+        <a-input v-model:value="streams.stream1" @change="debounce" style="width: calc(100% - 45px)"/>
+        <a-button type="primary" @click="streams.stream1 = ''"><DeleteOutlined /></a-button>
+      </a-input-group>
     </a-form-item>
     <a-form-item label="Stream 2" name="stream2">
-      <a-input v-model:value="streams.stream2" @change="debounce" />
+      <a-input-group compact>
+        <a-input v-model:value="streams.stream2" @change="debounce" style="width: calc(100% - 45px)"/>
+        <a-button type="primary" @click="streams.stream2 = ''"><DeleteOutlined /></a-button>
+      </a-input-group>
     </a-form-item>
     <a-form-item label="Stream 3" name="stream3">
-      <a-input v-model:value="streams.stream3" @change="debounce" />
+      <a-input-group compact>
+        <a-input v-model:value="streams.stream3" @change="debounce" style="width: calc(100% - 45px)"/>
+        <a-button type="primary" @click="streams.stream3 = ''"><DeleteOutlined /></a-button>
+      </a-input-group>
     </a-form-item>
     <a-form-item label="Stream 4" name="stream4">
-      <a-input v-model:value="streams.stream4" @change="debounce" />
+      <a-input-group compact>
+        <a-input v-model:value="streams.stream4" @change="debounce" style="width: calc(100% - 45px)"/>
+        <a-button type="primary" @click="streams.stream4 = ''"><DeleteOutlined /></a-button>
+      </a-input-group>
     </a-form-item>
     <a-divider>Save as preset</a-divider>
     <a-input-group compact>
@@ -96,7 +109,7 @@
     <a-input-group compact>
       <a-input :default-value="shareLink" style="width: calc(100% - 32px)" />
       <a-tooltip title="Copy share link">
-        <a-button @click="shareLayoutCopy">
+        <a-button type="primary" @click="shareLayoutCopy">
           <template #icon><CopyOutlined /></template>
         </a-button>
       </a-tooltip>
