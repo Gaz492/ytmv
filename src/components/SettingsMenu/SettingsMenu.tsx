@@ -2,6 +2,7 @@ import s from './SettingsMenu.module.scss'
 import {Button, Form, Dropdown, Input, MenuProps, Modal, Popconfirm, Space, Divider} from "antd";
 import {DeleteOutlined, DownOutlined, MenuOutlined, ShareAltOutlined} from "@ant-design/icons";
 import {useState} from "react";
+import {useParams, useSearchParams} from "react-router-dom";
 
 export function SettingsMenu() {
 
@@ -28,6 +29,7 @@ export function SettingsMenu() {
         },
     ];
     const presetItems: MenuProps['items'] = [];
+    const params = useSearchParams();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
