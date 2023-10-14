@@ -1,66 +1,91 @@
 import './FourView.scss'
-import {Row, Col} from "antd";
 import {YTEmbed} from "../../components/YTEmbed/YTEmbed.tsx";
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router-dom";
+import {Settings, SettingsMenu} from "../../components/SettingsMenu/SettingsMenu.tsx";
+
+export type FourViewStreams = {
+    stream1?: string
+    stream2?: string
+    stream3?: string
+    stream4?: string
+}
+
+const transformer = {
+    to(streams: FourViewStreams): string {
+        let output = "";
+        for (const stream of Object.values(streams)) {
+            const id = stream.split("v=")[1];
+            if (!id) {
+                continue;
+            }
+            output += id + ";"
+        }
+        return encodeURI(btoa(output));
+    },
+    from(input: string): FourViewStreams {
+        const streams = {} as any;
+        const parts = atob(decodeURI(input)).split(";");
+
+        for (let i = 0; i < parts.length; i ++) {
+            if (parts[i] === "") {
+                continue;
+            }
+
+            streams["stream" + (i + 1)] = `https://youtube.com/watch?v=${parts[i]}`
+        }
+
+        return streams as FourViewStreams;
+    }
+}
 
 export function FourView() {
-    type FourViewStreams = {
-        stream1: string
-        stream2: string
-        stream3: string
-        stream4: string
-    }
-
-    type FourViewPresets = {
-        presets: FourViewPreset[]
-    }
-
-    type FourViewPreset = {
-        name: string
-        views: FourViewStreams
-    }
-
     const [params, setSearchParams] = useSearchParams();
-    const [presets, setPresets] = useState<FourViewPresets>()
-    const [streams, setStreams] = useState<FourViewStreams>({
-        stream1: "",
-        stream2: "",
-        stream3: "",
-        stream4: ""
-    })
-    useEffect(() => {
-        const savedStreams = localStorage.getItem('savedStreams')
-        const savedPresets = localStorage.getItem('fourViewPresets')
-        const shareParam = params.get('s');
 
-        if (savedStreams !== null) {
-            const parsedStreams = JSON.parse(savedStreams)
-            setStreams(parsedStreams)
-        } else if (shareParam) {
-            setStreams(JSON.parse(atob(shareParam.toString())))
+    // const [presets, setPresets] = useState<FourViewPresets>()
+    const [settings, setSettings] = useState<Settings>({
+        presets: {},
+        streams: {}
+    })
+
+    const streams = settings.streams;
+
+    useEffect(() => {
+        const shareParam = params.get('s');
+        const localData = localStorage.getItem("settings");
+
+        let settings: Settings = {} as any;
+        if (localData) {
+            settings = JSON.parse(localData ?? "{}");
         }
-        //
-        if (savedPresets !== null && savedPresets !== '') {
-            setPresets(JSON.parse(savedPresets))
+
+        if (shareParam) {
+            settings.streams = transformer.from(shareParam ?? "");
         }
+
+        updateStreams(settings);
     }, [])
+
+    function updateStreams(settings: Settings, commit = true){
+        setSettings(settings)
+        if (commit) {
+            const serialisedSettings = JSON.stringify(settings);
+            localStorage.setItem("settings", serialisedSettings)
+        }
+        setSearchParams({
+            s: transformer.to(settings.streams)
+        })
+    }
+
     return <>
-        <Row wrap={false} className={"ytmv-row"}>
-            <Col flex="1 1 auto" className={"ytmv-col"}>
-                <YTEmbed ytUrl='https://www.youtube.com/watch?v=5sCX7E0sRH8'/>
-            </Col>
-            <Col flex="1 1 auto" className={"ytmv-col"}>
-                <YTEmbed ytUrl='https://www.youtube.com/watch?v=5sCX7E0sRH8'/>
-            </Col>
-        </Row>
-        <Row wrap={false} className={"ytmv-row"}>
-            <Col flex="1 1 auto" className={"ytmv-col"}>
-                <YTEmbed ytUrl='https://www.youtube.com/watch?v=5sCX7E0sRH8'/>
-            </Col>
-            <Col flex="1 1 auto" className={"ytmv-col"}>
-                <YTEmbed ytUrl='https://www.youtube.com/watch?v=5sCX7E0sRH8'/>
-            </Col>
-        </Row>
+        <SettingsMenu settings={settings} onSettingsChanged={v => updateStreams(v)}/>
+
+        <div className="stream-container">
+            <YTEmbed ytUrl={streams.stream1}/>
+            <YTEmbed ytUrl={streams.stream2}/>
+            <YTEmbed ytUrl={streams.stream3}/>
+            <YTEmbed ytUrl={streams.stream4}/>
+        </div>
+
     </>;
 }

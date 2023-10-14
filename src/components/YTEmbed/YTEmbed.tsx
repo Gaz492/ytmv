@@ -1,5 +1,6 @@
 import './YTEmbed.scss'
 import {Empty} from "antd";
+import {clsx} from "clsx";
 
 function formatURL(vURL: string) {
     return `https://www.youtube-nocookie.com/embed/${new URL(vURL).searchParams.get(
@@ -9,27 +10,28 @@ function formatURL(vURL: string) {
 
 function isValidURL(vURL: string) {
     try {
-        new URL(vURL)
+        new URL(vURL);
+        return true
     } catch (err) {
         console.error(`${vURL} errored: ${err}`)
         return false
     }
-    return true
 }
 
+export function YTEmbed({ytUrl}: {ytUrl?: string}) {
+    const url = ytUrl && isValidURL(ytUrl) ? ytUrl : null;
 
-export function YTEmbed({ytUrl}) {
-    console.log(ytUrl)
-    return <>
-        <div className={"video-container"}>
-            <iframe src={formatURL(ytUrl)} title="YouTube video player" allowFullScreen>
+    return <div className={clsx("video-container", {'empty': !url})}>
+        {url && <>
+            <iframe src={formatURL(url)} title="YouTube video player" allowFullScreen>
             </iframe>
-        </div>
-        {/*<Empty*/}
-        {/*    image={Empty.PRESENTED_IMAGE_SIMPLE}*/}
-        {/*    description={*/}
-        {/*        <span>No video available, you can set a video by pressing the hamburger menu in the top left</span>*/}
-        {/*    }*/}
-        {/*/>*/}
-    </>;
+        </>}
+
+        {!url && <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+                <span>No video available, you can set a video by pressing the hamburger menu in the top left</span>
+            }
+        />}
+    </div>
 }

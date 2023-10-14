@@ -1,6 +1,6 @@
 .settingsMenu {
-  position: fixed;
+  position: absolute;
   z-index: 999;
-  margin-left: 5px;
-  margin-top: 5px;
+  top: 1rem;
+  right: 1rem;
 }

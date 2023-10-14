@@ -1,8 +1,18 @@
 .video-container {
   position: relative;
-  padding-bottom: 50vh; /* 16:9 */
   //height: 100%;
   width: 100%;
+
+  &:not(.empty) {
+    padding-bottom: 50vh; /* 16:9 */
+  }
+
+  &.empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
 }
 .video-container iframe {
   border: none;
