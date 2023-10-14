@@ -3,6 +3,7 @@ import {Button, Form, Dropdown, Input, MenuProps, Modal, Popconfirm, Space, Divi
 import {DeleteOutlined, DownOutlined, MenuOutlined, SaveOutlined} from "@ant-design/icons";
 import {useEffect, useState} from "react";
 import {FourViewStreams} from "../../pages/FourView/FourView.tsx";
+import {useSearchParams} from "react-router-dom";
 
 export type Settings = {
     presets: Record<string, FourViewStreams>,
@@ -15,7 +16,13 @@ type Props = {
 }
 
 export function SettingsMenu({settings, onSettingsChanged}: Props) {
-    const [internalSettings, setInternalSettings] = useState<Settings>(settings)
+    const [_, setSearchParams] = useSearchParams();
+
+    const [internalSettings, setInternalSettings] = useState<Settings>(settings ?? {
+        presets: {},
+        streams: {}
+    })
+
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [presetName, setPresetName] = useState("");
@@ -38,25 +45,30 @@ export function SettingsMenu({settings, onSettingsChanged}: Props) {
         onSettingsChanged(internalSettings)
     }
 
+    function syncSettings(consumer: (settings: Settings) => Settings) {
+        const settings = consumer(internalSettings);
+        setInternalSettings(settings)
+        onSettingsChanged(settings)
+
+    }
+
     function savePreset() {
         if (presetName === "") {
             return
         }
 
-        const newSettings = ({
-            ...internalSettings, presets: {
-                ...internalSettings.presets, [presetName]: {
+        syncSettings(v => ({
+            ...v, presets: {
+                ...v.presets, [presetName]: {
                     stream1: internalSettings.streams.stream1,
                     stream2: internalSettings.streams.stream2,
                     stream3: internalSettings.streams.stream3,
                     stream4: internalSettings.streams.stream4
                 }
             }
-        })
+        }))
 
-        setInternalSettings(newSettings)
         setPresetName("")
-        onSettingsChanged(newSettings)
     }
 
     function loadPreset(key: string) {
@@ -65,13 +77,10 @@ export function SettingsMenu({settings, onSettingsChanged}: Props) {
             return;
         }
 
-        const newSettings =  ({
-            ...internalSettings,
+        syncSettings(v => ({
+            ...v,
             streams: preset
-        })
-
-        setInternalSettings(newSettings)
-        onSettingsChanged(newSettings)
+        }))
     }
 
     function deletePreset(key: string) {
@@ -82,24 +91,20 @@ export function SettingsMenu({settings, onSettingsChanged}: Props) {
         const presets = internalSettings.presets;
         delete presets[key]
 
-        const newSettings =  ({
-            ...internalSettings,
+        syncSettings(v => ({
+            ...v,
             // It's late, no brain work, this should be fine
             presets: presets
-        })
-
-        setInternalSettings(newSettings)
-        onSettingsChanged(newSettings)
+        }))
     }
 
     function clearStreams() {
-        const newSettings =  ({
-            ...internalSettings,
+        syncSettings( v => ({
+            ...v,
             streams: {}
-        })
+        }))
 
-        setInternalSettings(newSettings)
-        onSettingsChanged(newSettings)
+        setSearchParams({});
     }
 
     const menuItems: MenuProps['items'] = [
@@ -120,8 +125,8 @@ export function SettingsMenu({settings, onSettingsChanged}: Props) {
         },
     ];
 
-    const hasSavableData = Object.values(internalSettings.streams).some(v => v !== "");
-    const presetItems: MenuProps['items'] = Object.keys(internalSettings.presets).map((e, index) => ({
+    const hasSavableData = Object.values(internalSettings?.streams ?? {}).some(v => v !== "");
+    const presetItems: MenuProps['items'] = Object.keys(internalSettings?.presets ?? {}).map((e, index) => ({
         key: "" + index,
         label: <div style={{display: 'flex', justifyContent: 'space-between'}}>
             <span>{e}</span>

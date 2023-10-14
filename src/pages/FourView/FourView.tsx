@@ -13,6 +13,9 @@ export type FourViewStreams = {
 
 const transformer = {
     to(streams: FourViewStreams): string {
+        if (!streams){
+            return ""
+        }
         let output = "";
         for (const stream of Object.values(streams)) {
             const id = stream.split("v=")[1];
@@ -54,24 +57,27 @@ export function FourView() {
         const shareParam = params.get('s');
         const localData = localStorage.getItem("settings");
 
-        let settings: Settings = {} as any;
+        let lsettings = settings;
         if (localData) {
-            settings = JSON.parse(localData ?? "{}");
+            lsettings = JSON.parse(localData ?? "{}");
         }
 
         if (shareParam) {
-            settings.streams = transformer.from(shareParam ?? "");
+            lsettings.streams = transformer.from(shareParam ?? "");
         }
 
-        updateStreams(settings);
+        updateStreams(lsettings);
     }, [])
 
-    function updateStreams(settings: Settings, commit = true){
+    function updateStreams(settings: Settings){
         setSettings(settings)
-        if (commit) {
-            const serialisedSettings = JSON.stringify(settings);
-            localStorage.setItem("settings", serialisedSettings)
+        const serialisedSettings = JSON.stringify(settings);
+        localStorage.setItem("settings", serialisedSettings)
+
+        if (Object.values(settings.streams).length === 0) {
+            return
         }
+
         setSearchParams({
             s: transformer.to(settings.streams)
         })
@@ -81,10 +87,10 @@ export function FourView() {
         <SettingsMenu settings={settings} onSettingsChanged={v => updateStreams(v)}/>
 
         <div className="stream-container">
-            <YTEmbed ytUrl={streams.stream1}/>
-            <YTEmbed ytUrl={streams.stream2}/>
-            <YTEmbed ytUrl={streams.stream3}/>
-            <YTEmbed ytUrl={streams.stream4}/>
+            <YTEmbed ytUrl={streams?.stream1}/>
+            <YTEmbed ytUrl={streams?.stream2}/>
+            <YTEmbed ytUrl={streams?.stream3}/>
+            <YTEmbed ytUrl={streams?.stream4}/>
         </div>
 
     </>;
