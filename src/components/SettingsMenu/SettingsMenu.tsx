@@ -4,6 +4,7 @@ import {DeleteOutlined, DownOutlined, MenuOutlined, SaveOutlined} from "@ant-des
 import {useEffect, useState} from "react";
 import {FourViewStreams} from "../../pages/FourView/FourView.tsx";
 import {useSearchParams} from "react-router-dom";
+import {useDebouncedCallback} from 'use-debounce';
 
 export type Settings = {
     presets: Record<string, FourViewStreams>,
@@ -36,14 +37,6 @@ export function SettingsMenu({settings, onSettingsChanged}: Props) {
     const showModal = () => {
         setIsModalOpen(true);
     };
-
-    function save(commit = true) {
-        setIsModalOpen(false);
-        if (!commit) {
-            return
-        }
-        onSettingsChanged(internalSettings)
-    }
 
     function syncSettings(consumer: (settings: Settings) => Settings) {
         const settings = consumer(internalSettings);
@@ -107,6 +100,13 @@ export function SettingsMenu({settings, onSettingsChanged}: Props) {
         setSearchParams({});
     }
 
+    const debounced = useDebouncedCallback(
+        () => {
+            onSettingsChanged(internalSettings)
+        },
+        500
+    );
+
     const menuItems: MenuProps['items'] = [
         {
             label: (
@@ -144,7 +144,7 @@ export function SettingsMenu({settings, onSettingsChanged}: Props) {
                     onClick={showModal} icon={<MenuOutlined/>}>
             </Button>
         </Dropdown>
-        <Modal title="View Settings" open={isModalOpen} onCancel={() => save(false)} onOk={() => save()}>
+        <Modal title="View Settings" open={isModalOpen} onCancel={() => setIsModalOpen(false)} footer={null} >
             <Form.Item>
                 <Dropdown menu={{items: presetItems}}>
                     <Button>
@@ -162,8 +162,11 @@ export function SettingsMenu({settings, onSettingsChanged}: Props) {
                 <Space.Compact style={{width: '100%'}}>
                     <Input placeholder="https://www.youtube.com/watch?v=9F0czln6iT8"
                            value={(internalSettings.streams as any)[`stream${index}`]}
-                           onChange={v => setInternalSettings(
-                               e => ({...e, streams: {...e.streams, [`stream${index}`]: v.target.value}}))}
+                           onChange={v => {
+                               setInternalSettings(
+                                   e => ({...e, streams: {...e.streams, [`stream${index}`]: v.target.value}}))
+                               debounced();
+                           }}
                            allowClear={true}/>
                 </Space.Compact>
             </Form.Item>)}
